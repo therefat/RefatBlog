@@ -44,14 +44,14 @@ class CategoryController extends Controller
     /**
      * Display the specified resource.
      */
-   
+
 
     /**
      * Show the form for editing the specified resource.
      */
     public function edit(Category $category)
     {
-        //
+        return view('admin.categories.edit',compact('category'));
     }
 
     /**
@@ -59,7 +59,12 @@ class CategoryController extends Controller
      */
     public function update(UpdateCategoryRequest $request, Category $category)
     {
-        //
+        $validated = $request->validated();
+        if($validated['name'] !== $category->name){
+            $validated['slug'] = str($validated['name'])->slug();
+        }
+         $category->updateOrFail($validated);
+        return redirect()->route('admin.categories.index')->with('success','Category updated successfully');
     }
 
     /**
