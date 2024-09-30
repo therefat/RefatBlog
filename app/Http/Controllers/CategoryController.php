@@ -14,7 +14,7 @@ class CategoryController extends Controller
     public function index()
     {
         //
-        $categories = Category::all();
+        $categories = Category::latest()->paginate(10);
         return view('admin.categories.index',compact('categories'));
     }
 
@@ -24,6 +24,7 @@ class CategoryController extends Controller
     public function create()
     {
         //
+        return view('admin.categories.create');
     }
 
     /**
@@ -31,16 +32,19 @@ class CategoryController extends Controller
      */
     public function store(StoreCategoryRequest $request)
     {
-        //
+        $validated = $request->validated();
+        $validated['slug'] = str($validated['name'])->slug();
+        $category = Category::create($validated);
+        if($category){
+            return redirect()->route('admin.categories.index')->with('success','Category created successfully');
+        }
+        return  back();
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Category $category)
-    {
-        //
-    }
+   
 
     /**
      * Show the form for editing the specified resource.
