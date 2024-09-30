@@ -29,7 +29,7 @@
                             </div>
                         </div>
                     @endif
-                    {{--                   Categories table --}}
+                    {{--                   Post table --}}
 
 
                     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -79,7 +79,7 @@
                                     <td class="px-6 py-4 space-x-3 text-right">
                                         <a href="{{route('blog.show',$post)}}" target="_blank" class="font-medium text-teal-600 dark:text-teal-500 hover:underline">View</a>
                                         <a href="{{route('admin.post.edit',$post)}}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
-                                        <form class="inline-flex" onclick="return confirm('Are You Sure Delete This Category')" action="{{route('admin.post.destroy',$post)}}" method="POST">
+                                        <form class="inline-flex" onclick="return confirm('Are You Sure Delete This Post')" action="{{route('admin.post.destroy',$post)}}" method="POST">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class=" font-medium text-red-600 dark:text-blue-500 hover:underline">Delete</button>
