@@ -50,6 +50,7 @@ class PostController extends Controller
     public function show(Post $post)
     {
         //
+
     }
 
     /**
@@ -57,7 +58,9 @@ class PostController extends Controller
      */
     public function edit(Post $post)
     {
-        //
+        $categories = Category::latest()->get();
+        return view('admin.post.edit',compact('post','categories'));
+
     }
 
     /**
@@ -65,7 +68,13 @@ class PostController extends Controller
      */
     public function update(UpdatePostRequest $request, Post $post)
     {
-        //
+        $validated = $request->validated();
+        if($validated['title'] !== $post->title){
+            $validated['slug'] = str($validated['title'])->slug();
+        }
+        $post->updateOrFail($validated);
+        return redirect()->route('admin.post.index')->with('success','Post updated successfully');
+
     }
 
     /**
