@@ -27,7 +27,7 @@
                                           clip-rule="evenodd" />
                                 </svg>
                             </div>
-                            <input id="search" name="query"
+                            <input id="search" name="search" value="{{ request('search') }}"
                                    class="block w-full py-3 pl-10 pr-3 text-lg transition border-0 rounded-full placeholder:text-zinc-400 focus:ring-2 focus:ring-inset focus:ring-emerald-600 sm:text-2xl sm:leading-6 ring-1 ui-not-focus-visible:outline-none lg:flex bg-white/5 text-zinc-400 ring-inset ring-white/10 hover:ring-white/20"
                                    placeholder="Search" type="search" />
                         </div>
