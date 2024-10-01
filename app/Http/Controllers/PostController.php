@@ -35,6 +35,7 @@ class PostController extends Controller
      */
     public function store(StorePostRequest $request)
     {
+        dd($request->all());
         $validated = $request->validated();
         $validated['slug'] = str($validated['title'])->slug();
         $post = \Illuminate\Support\Facades\Auth::user()->posts()->create($validated);

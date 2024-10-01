@@ -16,7 +16,8 @@ class HomeController extends Controller
      */
     public function __invoke(Request $request)
     {
-        $posts = Post::when($request->query('search'),function (Builder $query) use($request){
+        $posts = Post::with('user','category')
+            ->when($request->query('search'),function (Builder $query) use($request){
             return $query->where('title','LIKE', '%' . $request->query('search'). '%')
                 ->orWhere('body', 'LIKE', '%' . $request->query('search') . '%');
         })
@@ -28,7 +29,7 @@ class HomeController extends Controller
          ->paginate(5);
         return view('blog.index',[
             'posts' => $posts,
-            'categories' => Category::all(),
+            'categories' => Category::withCount('posts')->latest()->get(),
         ]);
     }
 }
