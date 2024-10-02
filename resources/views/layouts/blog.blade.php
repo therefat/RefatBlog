@@ -6,7 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
    @include('layouts.partials.head-script')
-    <title>@yield('title','RefatBlog') | {{env('APP_NAME', 'Refat')}} </title>
+    <title>@yield('title','Refat Blog') | {{env('APP_NAME', 'Refat')}} </title>
+    <!-- include libraries(jQuery, bootstrap) -->
+    <style>
+        .no-tail * {
+            all: revert; /* Unsets all styles, including inherited ones */
+            display: revert; /* Resets the display property to its default */
+        }
+    </style>
+
 </head>
 
 <body class="antialiased bg-zinc-900">
@@ -41,5 +49,9 @@
 @yield('main_content')
 
 </body>
-
+<script>
+    $(document).ready(function() {
+        $('#summernote').summernote();
+    });
+</script>
 </html>

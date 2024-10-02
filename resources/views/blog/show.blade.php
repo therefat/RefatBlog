@@ -67,10 +67,11 @@
                     <hr class="h-px my-8 border-0 bg-zinc-700">
 
                     <!-- Post Body -->
-                    <p class="text-base font-normal text-zinc-400 md:text-xl">
+                    <div class=" no-tail" >
 
-                       {{$post->body}}
-                    </p>
+                       {!!  $post->body!!}
+
+                    </div>
                 </div>
             </article>
         </div>

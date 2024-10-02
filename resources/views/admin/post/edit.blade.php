@@ -19,14 +19,15 @@
                             <x-input-error class="mt-2" :messages="$errors->get('title')" />
                         </div>
                         {{--                        Body--}}
-                        <div>
+                        <div class="summernote-container">
                             <x-input-label for="body" value="Body" />
-                            <textarea id="body"  name="body" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"  placeholder="Write your thoughts here..." required autocomplete="body">
+                            
+                            <textarea class="custom-content" id="summernote" name="body"  required autofocus autocomplete="body">
                                 {{ old('body', $post->body) }}
                             </textarea>
                             <x-input-error class="mt-2" :messages="$errors->get('body',$post->body)" />
                         </div>
-                        {{--                    Category--}}
+                        {{--                    category--}}
                         <div>
                             <x-input-label for="category" value="Category" />
 
