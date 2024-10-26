@@ -1,5 +1,5 @@
 @extends('layouts.blog')
-@section('title','Welcome to RefatBlog')
+@section('title','Welcome to Refat Blog')
 {{--@dd($posts)--}}
 @section('main_content')
     <section class="flex flex-col gap-8 px-4 py-20 mx-auto xl:gap-24 xl:grid xl:grid-cols-12 max-w-7xl sm:px-6 lg:px-8">
@@ -32,7 +32,7 @@
 
                         <!-- excerpt -->
                         <p class="text-base font-medium text-zinc-400 md:text-lg line-clamp-3">
-                            {{str($post->body)->limit(100)}}
+                            {!! str(strip_tags($post->body))->limit(100) !!}
                         </p>
                     </div>
 

@@ -7,6 +7,8 @@ use App\Models\Post;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use Illuminate\Container\Attributes\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class PostController extends Controller
 {
@@ -35,41 +37,46 @@ class PostController extends Controller
      */
     public function store(StorePostRequest $request)
     {
-
         $validated = $request->validated();
         $bodys = $validated['body'];
 
-//       // image uploads
-libxml_use_internal_errors(true); // Suppress HTML errors
-//
-$dom = new \DOMDocument();
+        libxml_use_internal_errors(true); // Suppress HTML errors
 
-$dom->loadHTML(mb_convert_encoding($bodys, 'HTML-ENTITIES', 'UTF-8'), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+        $dom = new \DOMDocument();
+        $dom->loadHTML(mb_convert_encoding($bodys, 'HTML-ENTITIES', 'UTF-8'), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
 
-$images = $dom->getElementsByTagName('img');
+        $images = $dom->getElementsByTagName('img');
 
-foreach ($images as $key => $img) {
-    $src = $img->getAttribute('src');
+        foreach ($images as $key => $img) {
+            $src = $img->getAttribute('src');
 
+            if (preg_match('/^data:image\/(\w+);base64,/', $src)) {
+                $data = base64_decode(preg_match('/^data:image\/(\w+);base64,/', $src, $matches) ? preg_replace('/^data:image\/\w+;base64,/', '', $src) : $src);
+                
+                $extension = $matches[1] ?? 'png';
+                $image_name = "images/" . time() . $key . '.' . $extension;
+                
+                try {
+                    if (Storage::disk('public')->put($image_name, $data)) {
+                        // Use url() helper instead of asset()
+                        $img->setAttribute('src', url('storage/' . $image_name));
+                        Log::info("Image saved successfully: " . $image_name);
+                    } else {
+                        Log::error("Failed to save image: " . $image_name);
+                    }
+                } catch (\Exception $e) {
+                    Log::error("Exception when saving image: " . $e->getMessage());
+                }
+            } else {
+                // Log existing image paths
+                Log::info("Existing image path: " . $src);
+            }
+        }
 
-    if (preg_match('/^data:image\/(\w+);base64,/', $src)) {
+        $validated['body'] = $dom->saveHTML();
 
-        $data = base64_decode(preg_replace('/^data:image\/\w+;base64,/', '', $src));
-
-
-        $image_name = "/storage/" . time() . $key . '.png';
-
-
-        file_put_contents(public_path() . $image_name, $data);
-
-
-        $img->setAttribute('src', $image_name);
-    }
-}
-
-
-$validated['body'] = $dom->saveHTML();
-
+        // Log the final body content
+        Log::info("Final body content: " . $validated['body']);
 
         $validated['slug'] = str($validated['title'])->slug();
         $post = \Illuminate\Support\Facades\Auth::user()->posts()->create($validated);
@@ -138,18 +145,25 @@ $validated['body'] = $dom->saveHTML();
 
 
             if (preg_match('/^data:image\/(\w+);base64,/', $src)) {
-                   $data = base64_decode(preg_replace('/^data:image\/\w+;base64,/', '', $src));
+                   $data = base64_decode(preg_match('/^data:image\/(\w+);base64,/', $src, $matches) ? preg_replace('/^data:image\/\w+;base64,/', '', $src) : $src);
 
 
-                $image_name = "/storage/" . time() . $key . '.png';
+                // Change this line
+                $image_name = "images/" . time() . $key . '.' . $matches[1] ?? 'png';
 
 
-                file_put_contents(public_path() . $image_name, $data);
-
-
-                $img->setAttribute('src', $image_name);
-                $newImages[] = $image_name;
-            }else {
+                // Change this line
+                try {
+                    if (Storage::disk('public')->put($image_name, $data)) {
+                        $img->setAttribute('src', url('storage/' . $image_name));
+                        $newImages[] = $image_name;
+                    } else {
+                        Log::error("Failed to save image: " . $image_name);
+                    }
+                } catch (\Exception $e) {
+                    Log::error("Exception when saving image: " . $e->getMessage());
+                }
+            } else {
 
                 $newImages[] = $src;
             }
@@ -160,9 +174,9 @@ $validated['body'] = $dom->saveHTML();
         $post->updateOrFail($validated);
         // Delete old images that are no longer in use
         foreach ($oldImages as $oldImage) {
-            if (!in_array($oldImage, $newImages) && file_exists(public_path() . $oldImage)) {
-
-                unlink(public_path() . $oldImage); // Delete the old image from storage
+            $oldImagePath = str_replace(asset('storage/'), '', $oldImage);
+            if (!in_array($oldImagePath, $newImages) && Storage::disk('public')->exists($oldImagePath)) {
+                Storage::disk('public')->delete($oldImagePath); // Delete the old image from storage
             }
         }
         return redirect()->route('admin.post.index')->with('success','Post updated successfully');
